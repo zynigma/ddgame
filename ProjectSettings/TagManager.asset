@@ -3,7 +3,11 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - water
+  - waves
+  - Pipe
+  - dabbable
   layers:
   - Default
   - TransparentFX
