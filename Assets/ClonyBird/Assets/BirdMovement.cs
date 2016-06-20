@@ -9,9 +9,14 @@ public class BirdMovement : MonoBehaviour {
 	public float forwardSpeed = 1f;
 	public Rigidbody2D ddRigidbody;
 
-	bool didFlap = false;
+	bool didDip = false;
 	bool didDab = false;
+	bool didDive = false;
+	bool didDart = false;
 	bool isDabbing = false;
+	public bool scoreDip;
+	public bool scoreDive;
+	public bool sccoreDab;
 	bool isZoomedOut = false;
 
 	Animator animator;
@@ -23,10 +28,18 @@ public class BirdMovement : MonoBehaviour {
 
 	public GameObject ddgo;
 	public GameObject cameraGO;
+	public GameObject[] waves;
+	public float waveSpeed;
+
 
 	public Sprite neutralSprite;
 	public Sprite dabSprite;
 	bool android;
+	public int dabCount;
+	public int dabCountRow;
+	public int dipCount;
+	public int diveCount;
+	public int dartCount;
 
 
 
@@ -43,6 +56,9 @@ public class BirdMovement : MonoBehaviour {
 		}
 
 		ddRigidbody = GetComponent<Rigidbody2D> ();
+
+		//Set a random wave speed for all the waves to use
+		waveSpeed = Random.Range (-0.015f, 0.015f);
 	}
 
 	// Do Graphic & Input updates here
@@ -63,12 +79,19 @@ public class BirdMovement : MonoBehaviour {
 					Touch touch = Input.GetTouch(i);
 					if (touch.phase == TouchPhase.Began) {
 						if (touch.position.x > (Screen.width/2)) {
-							//If we have tapped the right side of the screen
-							didFlap = true;
+							//If we have tapped the right side of the screen on bottom 1/3 of screen.
+							if(touch.position.y <= Screen.height/3){
+								didDive = true;
+							}
+
+							//If we have tapped the right side of the screen on the top 2/3 of screen.
+							if(touch.position.y > Screen.height/3){
+								didDip = true;
+							}
 						}
 						
 						if (touch.position.x <= (Screen.width/2)) {
-							//If we have tapped the right side of the screen
+							//If we have tapped the left side of the screen
 							didDab = true;
 						}
 					}
@@ -78,31 +101,20 @@ public class BirdMovement : MonoBehaviour {
 			else{
 				//if we are not using Android (so we are on the computer)
 				if(Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0) ) {
-					didFlap = true;
+					didDip = true;
+				}
+
+				if(Input.GetMouseButtonDown(2) ) {
+					didDab = true;
 				}
 
 				if(Input.GetMouseButtonDown(1) ) {
-					didDab = true;
+					didDive = true;
 				}
 			}
 		}
 
-		if (android){
-			for (var i = 0; i < Input.touchCount; ++i) {
-				Touch touch = Input.GetTouch(i);
-				if (touch.phase == TouchPhase.Began) {
-					if (touch.position.x > (Screen.width/2)) {
-						//If we have tapped the right side of the screen
-						didFlap = true;
-					}
 
-					if (touch.position.x <= (Screen.width/2)) {
-						//If we have tapped the right side of the screen
-						didDab = true;
-					}
-				}
-			}
-		}
 
 		
 		//Debug.Log (GetComponent<Rigidbody2D> ().velocity.y);
@@ -156,22 +168,73 @@ public class BirdMovement : MonoBehaviour {
 
 		ddRigidbody.AddForce (Vector2.right * forwardSpeed);
 
-		if (didFlap) {
-			TurnOffDab ();
-			ddRigidbody.angularVelocity = 0;
-			ddRigidbody.AddForce (-Vector2.up * flapSpeed);
+		if (didDip) {
 
-			animator.SetTrigger ("DoFlap");
-			//int startRot = 290;
-			//ddgo.transform.Rotate(0,0,220);
-			ddgo.transform.rotation = Quaternion.Euler (0, 0, 90);
-			//iTween.RotateTo( ddgo ,iTween.Hash( "z", 290, "time", 0.3f));
+			if(dipCount == 0){
 
-			didFlap = false;
-			//transform.rotation = Quaternion.Euler(0, 0, 90);
+				//Made rigidbody react to gravity by making kinesmatic false
+				ddRigidbody.isKinematic = false;
+
+			}
+			else{
+
+				TurnOffDab ();
+
+				ddRigidbody.angularVelocity = 0;
+
+				ddRigidbody.AddForce (-Vector2.up * flapSpeed);
+
+				animator.SetTrigger ("DoFlap");
+
+				ddgo.transform.rotation = Quaternion.Euler (0, 0, 90);
+
+				didDip = false;
+
+				//change the tag of this object to reflect that we are in dip mode
+				gameObject.tag = "PlayerDip";
+
+				//Reset dabs in a row to 0
+				dabCountRow = 0;
+
+				//if this is the first dip, move the waves
+				if(dipCount < 1) {
+					foreach(GameObject wave in waves)
+						wave.GetComponent<MoveWave>().moveSpeed = waveSpeed;
+						//print (wave.name);
+				}
+			}
+
+			dipCount += 1;
+
 		}
 
-		if (didDab) {
+
+		//If the dive button has been pressed and we have dipped at least once)
+		if (didDive && dipCount > 0) {
+			TurnOffDab ();
+
+			ddRigidbody.angularVelocity = 0;
+
+			ddRigidbody.AddForce (-Vector2.up * (flapSpeed * 1.6f));
+			
+			animator.SetTrigger ("DoFlap");
+
+			ddgo.transform.rotation = Quaternion.Euler (0, 0, 90);
+
+			
+			didDive = false;
+			//transform.rotation = Quaternion.Euler(0, 0, 90);
+
+			//change the tag of this object to reflect that we are in dive mode
+			gameObject.tag = "PlayerDive";
+
+			//Reset dabs in a row to 0
+			dabCountRow = 0;
+		}
+
+
+		//If the dab button has been pressed and the player has dipped at least one time
+		if (didDab && dipCount > 0) {
 
 			//if we've started dabbing, do the animation and then stop. Without this trigger, it will play the animation every frame for the Invoke function's time.
 			if (!isDabbing) {
@@ -191,13 +254,19 @@ public class BirdMovement : MonoBehaviour {
 			// make dd charge forward
 			ddRigidbody.AddForce (Vector2.right * forwardSpeed * 110);
 
+			//timer that will turn the tab mode off in the game. Does not affect scoring
 			Invoke ("TurnOffDab", 0.4f);
+
+			//change the tag of this object to reflect that we are in dab mode
+			gameObject.tag = "PlayerDab";
+
+
 		}
 
 		//THIS IS MY LATEST TRY AT CUSTOMIZING THIS
 
 		//If we are NOT dabbing, rotate dd to match his velocity
-		if (!didDab) {
+		if (!didDab && dipCount > 0) {
 			if (ddRigidbody.velocity.y > 0) {
 				float angle = Mathf.LerpAngle (0, 120, (ddRigidbody.velocity.y / 3f));
 				transform.rotation = Quaternion.Euler (0, 0, angle);
@@ -205,7 +274,7 @@ public class BirdMovement : MonoBehaviour {
 			}
 
 			if (ddRigidbody.velocity.y < 0) {
-				float angle = Mathf.LerpAngle (360, 300, (-ddRigidbody.velocity.y / 3f));
+				float angle = Mathf.LerpAngle (360, 280, (-ddRigidbody.velocity.y / 3f));
 				transform.rotation = Quaternion.Euler (0, 0, angle);
 			
 			}
@@ -232,6 +301,10 @@ public class BirdMovement : MonoBehaviour {
 
 			//collision.transform.GetComponent<SpriteRenderer>().enabled = false;
 			collision.gameObject.SetActive(false);
+
+			dabCountRow += 1;
+
+			Score.AddPoint(1);
 		
 		}
 

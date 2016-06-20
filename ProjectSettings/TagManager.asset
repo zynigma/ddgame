@@ -8,6 +8,10 @@ TagManager:
   - waves
   - Pipe
   - dabbable
+  - PlayerDip
+  - PlayerDive
+  - PlayerDab
+  - scoreBox
   layers:
   - Default
   - TransparentFX
@@ -17,7 +21,7 @@ TagManager:
   - UI
   - 
   - 
-  - 
+  - dabbable
   - 
   - 
   - 

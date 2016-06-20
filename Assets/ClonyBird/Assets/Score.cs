@@ -8,11 +8,11 @@ public class Score : MonoBehaviour {
 
 	static Score instance;
 
-	static public void AddPoint() {
+	static public void AddPoint(int points) {
 		if(instance.bird.dead)
 			return;
 
-		score++;
+		score += points;
 
 		if(score > highScore) {
 			highScore = score;
@@ -20,8 +20,15 @@ public class Score : MonoBehaviour {
 	}
 
 	BirdMovement bird;
+	bool android;
 
 	void Start() {
+		if (Application.platform == RuntimePlatform.Android){
+			android = true;
+			GetComponent<GUIText>().fontSize = Screen.width/30;
+		}
+
+
 		instance = this;
 		GameObject player_go = GameObject.FindGameObjectWithTag("Player");
 		if(player_go == null) {

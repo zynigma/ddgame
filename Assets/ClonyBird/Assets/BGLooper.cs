@@ -25,6 +25,10 @@ public class BGLooper : MonoBehaviour {
 		// Make a variable to hold all of the dabbable bricks in the scene
 		dabbableBricks = GameObject.FindGameObjectsWithTag ("dabbable");
 
+		foreach (GameObject brick in dabbableBricks) {
+			brick.layer = LayerMask.NameToLayer("dabbable");
+		}
+
 
 	}
 
@@ -34,21 +38,21 @@ public class BGLooper : MonoBehaviour {
 		//float widthOfBGObject = ((BoxCollider2D)collider).size.x;
 
 		if (collider.tag == "waves") {
-			Debug.Log ("Move Waves 2.346f per clone here. Right now there are four clones, so we will move them 9.384f so that they loop correctly.");
+			//Debug.Log ("Move Waves 2.346f per clone here. Right now there are four clones, so we will move them 9.384f so that they loop correctly.");
 			Vector3 pos = collider.transform.position;
 			pos.x += 9.384f;
 			collider.transform.position = pos;
 
 
 		}else if (collider.tag == "water"){
-			Debug.Log ("Move Water 2.346f per clone here. Right now there are four clones, so we will move them 9.384f so that they loop correctly.");
+			//Debug.Log ("Move Water 2.346f per clone here. Right now there are four clones, so we will move them 9.384f so that they loop correctly.");
 			Vector3 pos = collider.transform.position;
 			pos.x += 9.384f;
 			collider.transform.position = pos;
 
 		}else {
 			//the looper has hit the ground or background, so move it according to is width. Intro to this project.
-			Debug.Log ("Triggered: " + collider.name);
+			//Debug.Log ("Triggered: " + collider.name);
 
 			float widthOfBGObject = ((BoxCollider2D)collider).size.x;
 
