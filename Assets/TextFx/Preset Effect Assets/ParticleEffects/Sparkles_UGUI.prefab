@@ -25,7 +25,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 100000}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -71.5000458, y: 101.000046, z: 0}
+  m_LocalPosition: {x: -.167490438, y: .533348143, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -39,7 +39,7 @@ ParticleAnimator:
   Does Animate Color?: 1
   colorAnimation[0]:
     serializedVersion: 2
-    rgba: 184546560
+    rgba: 1241511168
   colorAnimation[1]:
     serializedVersion: 2
     rgba: 3019964397
@@ -68,23 +68,23 @@ EllipsoidParticleEmitter:
   m_GameObject: {fileID: 100000}
   serializedVersion: 2
   m_Enabled: 1
-  m_Emit: 0
-  minSize: 2
-  maxSize: 10
-  minEnergy: .5
-  maxEnergy: 2
-  minEmission: 170
-  maxEmission: 200
+  m_Emit: 1
+  minSize: .00499999989
+  maxSize: .150000006
+  minEnergy: 0
+  maxEnergy: 1
+  minEmission: 15
+  maxEmission: 40
   worldVelocity: {x: 0, y: 0, z: 0}
-  localVelocity: {x: 0, y: 3, z: 0}
-  rndVelocity: {x: 40, y: 40, z: 40}
+  localVelocity: {x: 0, y: 1, z: 0}
+  rndVelocity: {x: 3, y: 3, z: 3}
   emitterVelocityScale: .0500000007
   tangentVelocity: {x: 0, y: 0, z: 0}
   angularVelocity: 0
   rndAngularVelocity: 0
   rndRotation: 0
   Simulate in Worldspace?: 1
-  m_OneShot: 0
+  m_OneShot: 1
   m_Ellipsoid: {x: 0, y: 0, z: 0}
   m_MinEmitterRange: 0
 --- !u!26 &2600000

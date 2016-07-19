@@ -3,14 +3,22 @@ using System.Collections;
 
 public class ScorePoint : MonoBehaviour {
 
-
+	bool isColliding;
+	public AudioClip a_dip;
+	public AudioSource audioSource;
 
 
 	void Start (){
 
 	}
-
+	/*
 	void OnTriggerEnter2D(Collider2D collider) {
+
+		if(isColliding) return;
+
+		isColliding = true;
+		//Rest of code
+
 		if(collider.tag == "Player") {
 			Score.AddPoint(2);
 
@@ -35,5 +43,15 @@ public class ScorePoint : MonoBehaviour {
 
 
 		}
+		/*
+		if (collider.name == "ScoreHit") {
+			print ("hit");
+				audioSource.PlayOneShot (a_dip);
+		}
+
+	}
+*/
+	void Update(){
+		isColliding = false;
 	}
 }

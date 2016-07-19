@@ -77,7 +77,7 @@ EllipsoidParticleEmitter:
   maxEmission: 50
   worldVelocity: {x: 0, y: 0, z: 0}
   localVelocity: {x: -0, y: 0, z: 0}
-  rndVelocity: {x: 12, y: 12, z: 12}
+  rndVelocity: {x: 1, y: 1, z: 12}
   emitterVelocityScale: 2
   tangentVelocity: {x: 0, y: 0, z: 0}
   angularVelocity: 0

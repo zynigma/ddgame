@@ -12,6 +12,7 @@ TagManager:
   - PlayerDive
   - PlayerDab
   - scoreBox
+  - ScoreHit
   layers:
   - Default
   - TransparentFX

@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using TextFx;
 
 public class BirdMovement : MonoBehaviour {
 
@@ -14,6 +15,7 @@ public class BirdMovement : MonoBehaviour {
 	bool didDive = false;
 	bool didDart = false;
 	bool isDabbing = false;
+	bool didBreakBrick = false;
 	public bool scoreDip;
 	public bool scoreDive;
 	public bool sccoreDab;
@@ -37,10 +39,14 @@ public class BirdMovement : MonoBehaviour {
 	bool android;
 	public int dabCount;
 	public int dabCountRow;
+	public int dabCountRowMultiplier;
 	public int dipCount;
 	public int diveCount;
 	public int dartCount;
 
+	public GameObject miniBrick;
+	public GameObject scorePopUp;
+	public GameObject[] dabMultiplierIcons;
 
 
 	// Use this for initialization
@@ -175,6 +181,13 @@ public class BirdMovement : MonoBehaviour {
 				//Made rigidbody react to gravity by making kinesmatic false
 				ddRigidbody.isKinematic = false;
 
+				//if this is the first dip, move the waves
+
+					foreach(GameObject wave in waves)
+						wave.GetComponent<MoveWave>().moveSpeed = waveSpeed;
+					//print (wave.name);
+
+
 			}
 			else{
 
@@ -193,15 +206,16 @@ public class BirdMovement : MonoBehaviour {
 				//change the tag of this object to reflect that we are in dip mode
 				gameObject.tag = "PlayerDip";
 
-				//Reset dabs in a row to 0
-				dabCountRow = 0;
+				//Reset dabs in a row to 1
+				dabCountRow = 1;
+				dabCountRowMultiplier = 1;
 
-				//if this is the first dip, move the waves
-				if(dipCount < 1) {
-					foreach(GameObject wave in waves)
-						wave.GetComponent<MoveWave>().moveSpeed = waveSpeed;
-						//print (wave.name);
+				//turn off all of the dab multiplier icons because the streak has been broken
+				foreach(GameObject icon in dabMultiplierIcons){
+					icon.SetActive(false);
 				}
+
+
 			}
 
 			dipCount += 1;
@@ -228,8 +242,15 @@ public class BirdMovement : MonoBehaviour {
 			//change the tag of this object to reflect that we are in dive mode
 			gameObject.tag = "PlayerDive";
 
-			//Reset dabs in a row to 0
-			dabCountRow = 0;
+			//Reset dabs in a row to 1
+			dabCountRow = 1;
+			dabCountRowMultiplier = 1;
+
+			//turn off all of the dab multiplier icons because the streak has been broken
+			foreach(GameObject icon in dabMultiplierIcons){
+				icon.SetActive(false);
+			}
+
 		}
 
 
@@ -249,7 +270,7 @@ public class BirdMovement : MonoBehaviour {
 			ddRigidbody.velocity = Vector3.zero;
 
 			// set dd rotation for dab
-			ddgo.transform.rotation = Quaternion.Euler (0, 0, 0);
+			ddgo.transform.rotation = Quaternion.Euler (0, 0, 6.1f);
 
 			// make dd charge forward
 			ddRigidbody.AddForce (Vector2.right * forwardSpeed * 110);
@@ -299,14 +320,44 @@ public class BirdMovement : MonoBehaviour {
 
 		if (collision.transform.tag == "dabbable" && isDabbing) {
 
+
+			int randomMiniBrickCount = Random.Range (1,4);
+
+
+			for (int x = 0; x < randomMiniBrickCount; x++) {
+				var newMiniBrick = Lean.LeanPool.Spawn(miniBrick, collision.transform.position, Quaternion.identity);
+				//iTween.MoveTo(newMiniBrick, iTween.Hash("position", new Vector3(transform.position.x + 50, Random.Range(-100,100), Random.Range(-100,100))));
+				newMiniBrick.GetComponent<Rigidbody>().AddForce(Random.Range(15,130), Random.Range(-30,45), Random.Range(-1.5f,0));
+				newMiniBrick.GetComponent<Rigidbody>().AddTorque(Random.Range(-350,350), Random.Range(-350,350), Random.Range(-350,350));
+				Lean.LeanPool.Despawn(newMiniBrick, 15);
+			}
+
+
 			//collision.transform.GetComponent<SpriteRenderer>().enabled = false;
 			collision.gameObject.SetActive(false);
 
-			dabCountRow += 1;
+			dabCount += 1;
 
-			Score.AddPoint(1);
-		
+			//Turn on break brick boolean so that we increase the number of dabs in a row
+			didBreakBrick = true;
+
+			Score.AddPoint(dabCountRowMultiplier);
+
+			GameObject newScorePopUp = Lean.LeanPool.Spawn(scorePopUp, transform.position, Quaternion.identity);
+			newScorePopUp.transform.parent = Camera.main.transform;
+			if(transform.position.y < 0.3f){
+				iTween.MoveBy(newScorePopUp, iTween.Hash("x", Random.Range(1.4f, 2.4f), "y", Random.Range(-0.2f,1), "time", 5));
+			}
+			else if(transform.position.y > 1.2f){
+				iTween.MoveBy(newScorePopUp, iTween.Hash("x", Random.Range(1.4f, 2.4f), "y", Random.Range(-1,0.2f), "time", 5));
+			}
+			else{
+				iTween.MoveBy(newScorePopUp, iTween.Hash("x", Random.Range(1.4f, 2.4f), "y", Random.Range(-0.7f,0.7f), "time", 5));
+			}
+			newScorePopUp.GetComponent<TextFxNative>().Text = dabCountRowMultiplier.ToString();
 		}
+
+
 
 		if(godMode || isDabbing)
 			return;
@@ -316,5 +367,48 @@ public class BirdMovement : MonoBehaviour {
 		deathCooldown = 0.5f;
 	}
 
+	void OnTriggerEnter2D(Collider2D collider) {
+		//If we go through the score box and we have broken a brick, add 1 to the number of dabs we have in a row
+		if (collider.transform.tag == "scoreBox" && didBreakBrick) {
 
+			/*
+			dabCountRow += 1;
+			dabCountRowMultiplier += 2;
+			//Turn off the break brick boolean so that it can be triggered again.
+			didBreakBrick = false;
+			*/
+
+			//Turn on the dab multiplier icons to match the number of dabs in a row
+			if(dabCountRow == 1) dabMultiplierIcons[0].SetActive(true);
+			if(dabCountRow == 2) dabMultiplierIcons[1].SetActive(true);
+			if(dabCountRow == 3) dabMultiplierIcons[2].SetActive(true);
+			if(dabCountRow == 4) dabMultiplierIcons[3].SetActive(true);
+			if(dabCountRow == 5) dabMultiplierIcons[4].SetActive(true);
+			if(dabCountRow == 6) dabMultiplierIcons[5].SetActive(true);
+			if(dabCountRow == 7) dabMultiplierIcons[6].SetActive(true);
+
+		}
+
+	}
+
+	void OnTriggerExit2D(Collider2D collider){
+		if (collider.transform.tag == "scoreBox" && didBreakBrick) {
+			
+			dabCountRow += 1;
+			dabCountRowMultiplier += 2;
+			//Turn off the break brick boolean so that it can be triggered again.
+			didBreakBrick = false;
+			//Turn on the dab multiplier icons to match the number of dabs in a row
+			/*
+			if(dabCountRow == 2) dabMultiplierIcons[0].SetActive(true);
+			if(dabCountRow == 3) dabMultiplierIcons[1].SetActive(true);
+			if(dabCountRow == 4) dabMultiplierIcons[2].SetActive(true);
+			if(dabCountRow == 5) dabMultiplierIcons[3].SetActive(true);
+			if(dabCountRow == 6) dabMultiplierIcons[4].SetActive(true);
+			if(dabCountRow == 7) dabMultiplierIcons[5].SetActive(true);
+			if(dabCountRow == 8) dabMultiplierIcons[6].SetActive(true);
+			*/
+			
+		}
+	}
 }

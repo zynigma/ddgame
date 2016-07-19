@@ -6,7 +6,7 @@ public class MoveWave : MonoBehaviour {
 	public float moveSpeed;
 	// Use this for initialization
 	void Start () {
-		//moveSpeed = Random.Range (-0.01f, 0.01f);
+		//moveSpeed = Random.Range (-0.015f, 0.015f);
 	}
 	
 	// Update is called once per frame

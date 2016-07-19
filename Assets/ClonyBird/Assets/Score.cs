@@ -1,7 +1,13 @@
 ﻿using UnityEngine;
 using System.Collections;
+using TextFx;
 
 public class Score : MonoBehaviour {
+
+	public AudioClip a_dip;
+	public AudioSource audioSource;
+
+	public GUIText scoreText;
 
 	static int score = 0;
 	static int highScore = 0;
@@ -14,15 +20,33 @@ public class Score : MonoBehaviour {
 
 		score += points;
 
+		//instance.audioSource.PlayOneShot (instance.a_dip);
+
 		if(score > highScore) {
 			highScore = score;
 		}
+
+		/*
+		iTween.ValueTo( gameObject, iTween.Hash(
+			"from", exampleInt,
+			"to", 100,
+			"time", 1f,
+			"onupdatetarget", gameObject,
+			"onupdate", "tweenOnUpdateCallBack",
+			"easetype", iTween.EaseType.easeOutQuad
+			)
+		               )
+		 */
 	}
 
 	BirdMovement bird;
 	bool android;
 
+	public TextFxNative scoreTextFx;
+
 	void Start() {
+		GetComponent<GUIText>().fontSize = Screen.width/30;
+
 		if (Application.platform == RuntimePlatform.Android){
 			android = true;
 			GetComponent<GUIText>().fontSize = Screen.width/30;
@@ -46,6 +70,7 @@ public class Score : MonoBehaviour {
 	}
 
 	void Update () {
-		GetComponent<GUIText>().text = "Score: " + score + "\nHigh Score: " + highScore;
+		GetComponent<GUIText>().text = "High Score: " + highScore + "\nScore: " + score ;
+		//scoreTextFx.Text = "High Score: " + highScore + "\nScore: " + score ;
 	}
 }
